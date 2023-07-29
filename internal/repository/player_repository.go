@@ -2,7 +2,7 @@ package repository
 
 import (
 	"github.com/bskcorona-github/EloRatingSystem5vs5/elorating-backend/backend/internal/models"
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 type PlayerRepository interface {

@@ -1,6 +1,9 @@
 package database
 
-import "github.com/bskcorona-github/EloRatingSystem5vs5/elorating-backend/backend/internal/models"
+import (
+	"github.com/bskcorona-github/EloRatingSystem5vs5/elorating-backend/backend/internal/models"
+	"gorm.io/gorm"
+)
 
 type PlayerDatabase interface {
 	CreatePlayer(player *models.Player) error
