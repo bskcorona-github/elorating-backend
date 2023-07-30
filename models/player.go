@@ -7,5 +7,4 @@ type Player struct {
 	TotalGames  int    `gorm:"not null" json:"total_games"`
 	TotalWins   int    `gorm:"not null" json:"total_wins"`
 	TotalLosses int    `gorm:"not null" json:"total_losses"`
-	// その他のプレイヤー情報を追加する場合はここに記述する
 }
