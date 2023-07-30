@@ -11,6 +11,7 @@ type Config struct {
 	DBUser     string
 	DBPassword string
 	DBName     string
+	DbURI      string `envconfig:"DB_URI"`
 }
 
 func NewConfig() *Config {
