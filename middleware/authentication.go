@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -25,7 +26,13 @@ func BasicAuth(username, password string, c echo.Context) (bool, error) {
 func RequireLogin(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		username, password, ok := c.Request().BasicAuth()
-		if !ok || !BasicAuth(username, password, c) {
+		authOK, err := BasicAuth(username, password, c)
+		if err != nil {
+			// エラーが発生した場合はログ出力など適切な処理を行う
+			log.Println("Authentication error:", err)
+			return echo.NewHTTPError(http.StatusInternalServerError, "Internal Server Error")
+		}
+		if !ok || !authOK {
 			c.Response().Header().Set("WWW-Authenticate", `Basic realm="Restricted"`)
 			return echo.NewHTTPError(http.StatusUnauthorized, "Unauthorized")
 		}
