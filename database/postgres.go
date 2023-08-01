@@ -1,6 +1,8 @@
+// backend/database/postgres.go
 package database
 
 import (
+	"github.com/bskcorona-github/EloRatingSystem5vs5/elorating-backend/backend/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -30,4 +32,10 @@ func (d *Database) Close() error {
 
 func (d *Database) GetDB() *gorm.DB {
 	return d.db
+}
+
+func (d *Database) CreatePlayer(player *models.Player) error {
+	// TODO: Implement the logic to create a new player record in the database
+	// This involves inserting the player information into the "players" table.
+	return nil
 }
