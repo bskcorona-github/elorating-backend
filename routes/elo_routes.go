@@ -5,10 +5,14 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func RegisterEloRoutes(e *echo.Echo, eloHandler *handlers.EloHandler) {
-	// チーム分けAPIのエンドポイントを設定
-	e.POST("/team", eloHandler.TeamFormationHandler)
+// RegisterELORoutes はelo関連のルーティングを登録する関数です。
+func RegisterELORoutes(e *echo.Echo, eloHandler *handlers.ELOHandler) {
+	// プレイヤー選択API
+	e.POST("/selected_players", eloHandler.SelectPlayersHandler)
 
-	// ゲーム結果の入力APIのエンドポイントを設定
-	e.POST("/result", eloHandler.GameResultHandler)
+	// チーム分け結果取得API
+	e.GET("/teams", eloHandler.GetTeamFormationHandler)
+
+	// ゲーム結果反映API
+	e.POST("/game_result", eloHandler.ReflectGameResultHandler)
 }

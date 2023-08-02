@@ -3,44 +3,61 @@ package handlers
 import (
 	"net/http"
 
+	"github.com/bskcorona-github/EloRatingSystem5vs5/elorating-backend/backend/models"
 	"github.com/bskcorona-github/EloRatingSystem5vs5/elorating-backend/backend/usecase"
 	"github.com/labstack/echo/v4"
 )
 
-type EloHandler struct {
-	eloUsecase usecase.EloUsecase
+// ELOHandler はelo関連のAPIハンドラーを持つ構造体です。
+type ELOHandler struct {
+	eloUsecase usecase.ELOUsecase
 }
 
-func NewEloHandler(eloUsecase usecase.EloUsecase) *EloHandler {
-	return &EloHandler{
+// NewELOHandler はELOHandlerのインスタンスを生成する関数です。
+func NewELOHandler(eloUsecase usecase.ELOUsecase) *ELOHandler {
+	return &ELOHandler{
 		eloUsecase: eloUsecase,
 	}
 }
 
-// チーム分けAPIのハンドラ関数
-func (h *EloHandler) TeamFormationHandler(c echo.Context) error {
-	// リクエストから必要なデータを取得（例：選択した10人のプレイヤーIDなど）
-	// 選択した10人のプレイヤーIDを元にチーム分けを行う
-	teams, err := h.eloUsecase.TeamFormation(players)
-	if err != nil {
-		// エラーハンドリング
-		return echo.NewHTTPError(http.StatusInternalServerError, "チーム分けに失敗しました")
+// SelectPlayersHandler はプレイヤー選択APIのハンドラー関数です。
+func (h *ELOHandler) SelectPlayersHandler(c echo.Context) error {
+	var selectedPlayers []models.Player
+	if err := c.Bind(&selectedPlayers); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid request payload")
 	}
 
-	// チーム分け結果をJSON形式でレスポンス
-	return c.JSON(http.StatusOK, teams)
+	// プレイヤー選択ロジックを呼び出す
+	result, err := h.eloUsecase.TeamFormation(selectedPlayers)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to form teams")
+	}
+
+	return c.JSON(http.StatusOK, result)
 }
 
-// ゲーム結果の入力APIのハンドラ関数
-func (h *EloHandler) GameResultHandler(c echo.Context) error {
-	// リクエストから必要なデータを取得（例：勝ったチームと負けたチームの情報など）
-	// ゲーム結果を元にレートの変動を計算する
-	newRatings, err := h.eloUsecase.CalculateRatings(gameResult)
+// GetTeamFormationHandler はチーム分け結果取得APIのハンドラー関数です。
+func (h *ELOHandler) GetTeamFormationHandler(c echo.Context) error {
+	// チーム分け結果取得ロジックを呼び出す
+	result, err := h.eloUsecase.GetTeamFormation()
 	if err != nil {
-		// エラーハンドリング
-		return echo.NewHTTPError(http.StatusInternalServerError, "ゲーム結果の計算に失敗しました")
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to get team formation")
 	}
 
-	// レートの変動結果をJSON形式でレスポンス
-	return c.JSON(http.StatusOK, newRatings)
+	return c.JSON(http.StatusOK, result)
+}
+
+// ReflectGameResultHandler はゲーム結果反映APIのハンドラー関数です。
+func (h *ELOHandler) ReflectGameResultHandler(c echo.Context) error {
+	var gameResult models.GameResult
+	if err := c.Bind(&gameResult); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid request payload")
+	}
+
+	// ゲーム結果反映ロジックを呼び出す
+	if err := h.eloUsecase.CalculateRatings(gameResult); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to reflect game result")
+	}
+
+	return c.JSON(http.StatusOK, "game result reflected successfully")
 }
