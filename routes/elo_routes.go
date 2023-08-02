@@ -1,5 +1,3 @@
-// backend/routes/elo_routes.go
-
 package routes
 
 import (
@@ -7,8 +5,10 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-// RegisterEloRoutes はElo関連のルーティングを登録します。
-func RegisterEloRoutes(e *echo.Echo, eloHandler handlers.EloHandler) {
-	e.GET("/elo/calculate", eloHandler.CalculateEloRatingHandler)
-	// 他のElo関連のルートをここに追加する
+func RegisterEloRoutes(e *echo.Echo, eloHandler *handlers.EloHandler) {
+	// チーム分けAPIのエンドポイントを設定
+	e.POST("/team", eloHandler.TeamFormationHandler)
+
+	// ゲーム結果の入力APIのエンドポイントを設定
+	e.POST("/result", eloHandler.GameResultHandler)
 }
