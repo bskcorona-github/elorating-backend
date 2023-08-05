@@ -1,6 +1,6 @@
 // elo_calculator.go
 
-package utils
+package util
 
 import (
 	"math"

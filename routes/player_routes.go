@@ -5,11 +5,11 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func RegisterPlayerRoutes(e *echo.Echo, playerHandler handlers.PlayerHandler) {
-	e.GET("/api/players", playerHandler.GetAllPlayers)       //プレイヤー全取得
-	e.GET("/api/players/:id", playerHandler.GetPlayerByID)   //プレイヤー個別取得
-	e.POST("/api/players", playerHandler.CreatePlayer)       //プレイヤー作成
-	e.PUT("/api/players/:id", playerHandler.UpdatePlayer)    //プレイヤー情報編集更新
-	e.DELETE("/api/players/:id", playerHandler.DeletePlayer) //プレイヤー削除
+func RegisterPlayerRoutes(e *echo.Echo, h *handlers.PlayerHandler) {
+	e.GET("/api/players", h.GetAllPlayers)       //プレイヤー全取得
+	e.GET("/api/players/:id", h.GetPlayerByID)   //プレイヤー個別取得
+	e.POST("/api/players", h.CreatePlayer)       //プレイヤー作成
+	e.PUT("/api/players/:id", h.UpdatePlayer)    //プレイヤー情報編集更新
+	e.DELETE("/api/players/:id", h.DeletePlayer) //プレイヤー削除
 
 }
