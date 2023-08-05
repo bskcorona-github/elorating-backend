@@ -3,7 +3,9 @@ package usecase
 import (
 	"errors"
 	"fmt"
+	"log"
 	"sort"
+	"strconv"
 
 	"github.com/bskcorona-github/EloRatingSystem5vs5/elorating-backend/backend/models"
 	"github.com/bskcorona-github/EloRatingSystem5vs5/elorating-backend/backend/repository"
@@ -35,12 +37,16 @@ func (u *ELOUsecase) TeamFormation(selectedPlayers []models.Player) (*models.Tea
 	if len(selectedPlayers) != 10 {
 		return nil, errors.New("selectedPlayers must contain exactly 10 players")
 	}
+	log.Println("ccccccccccccccccccccccccccccccccccccccccc", selectedPlayers)
 
 	// プレイヤーのレーティングを取得する
 	for i := 0; i < len(selectedPlayers); i++ {
-		player, err := u.playerRepository.GetPlayerByID(selectedPlayers[i].Name)
+		playerID := strconv.Itoa(int(selectedPlayers[i].ID))
+		player, err := u.playerRepository.GetPlayerByID(playerID) // IDを渡すように修正
 		if err != nil {
-			return nil, fmt.Errorf("failed to get player with name %s: %w", selectedPlayers[i].Name, err)
+			log.Println("ddddddddddddddddddddddddddddddddddddddddddd", selectedPlayers)
+
+			return nil, fmt.Errorf("failed to get player with ID %d: %w", selectedPlayers[i].ID, err) // エラーメッセージもIDに修正
 		}
 		selectedPlayers[i].EloRating = player.EloRating
 	}
@@ -51,25 +57,27 @@ func (u *ELOUsecase) TeamFormation(selectedPlayers []models.Player) (*models.Tea
 	})
 
 	// チーム分けロジックを実装する
-	var teamA []*models.Player
-	var teamB []*models.Player
-	for i, player := range selectedPlayers {
+	var teamAIDs []uint
+	var teamBIDs []uint
+	for i := 0; i < len(selectedPlayers); i++ {
 		if i < 5 {
-			teamA = append(teamA, &player)
+			teamAIDs = append(teamAIDs, selectedPlayers[i].ID)
 		} else {
-			teamB = append(teamB, &player)
+			teamBIDs = append(teamBIDs, selectedPlayers[i].ID)
 		}
 	}
 
 	// TeamFormationResultを作成
 	result := &models.TeamFormationResult{
-		TeamA: teamA,
-		TeamB: teamB,
+		TeamA: teamAIDs,
+		TeamB: teamBIDs,
 	}
 
 	// チーム分け結果をDBに保存
 	err := u.eloRepository.SaveTeamFormationResult(result)
 	if err != nil {
+		log.Println("eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee", selectedPlayers)
+
 		return nil, fmt.Errorf("failed to save team formation result: %w", err)
 	}
 

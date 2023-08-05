@@ -2,6 +2,7 @@ package repository
 
 import (
 	"github.com/bskcorona-github/EloRatingSystem5vs5/elorating-backend/backend/models"
+	"github.com/labstack/gommon/log"
 	"gorm.io/gorm"
 )
 
@@ -22,6 +23,8 @@ func (pr *PlayerRepository) GetAllPlayers() ([]models.Player, error) {
 func (pr *PlayerRepository) GetPlayerByID(playerID string) (*models.Player, error) {
 	var player models.Player
 	err := pr.db.Where("id = ?", playerID).First(&player).Error
+	log.Info("playerID:", playerID, "playerName:", player.Name)
+
 	return &player, err
 }
 
