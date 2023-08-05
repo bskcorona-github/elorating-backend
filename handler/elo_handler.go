@@ -3,6 +3,8 @@ package handlers
 import (
 	"net/http"
 
+	"log"
+
 	"github.com/bskcorona-github/EloRatingSystem5vs5/elorating-backend/backend/models"
 	"github.com/bskcorona-github/EloRatingSystem5vs5/elorating-backend/backend/usecase"
 	"github.com/labstack/echo/v4"
@@ -22,14 +24,20 @@ func NewELOHandler(eloUsecase usecase.ELOUsecase) *ELOHandler {
 
 // SelectPlayersHandler はプレイヤー選択APIのハンドラー関数です。
 func (h *ELOHandler) SelectPlayersHandler(c echo.Context) error {
+	log.Println("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+
 	var selectedPlayers []models.Player
 	if err := c.Bind(&selectedPlayers); err != nil {
+		log.Println("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", selectedPlayers)
+
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid request payload")
 	}
 
 	// プレイヤー選択ロジックを呼び出す
 	result, err := h.eloUsecase.TeamFormation(selectedPlayers)
 	if err != nil {
+		log.Println("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", selectedPlayers)
+
 		return echo.NewHTTPError(http.StatusInternalServerError, "failed to form teams")
 	}
 
@@ -41,6 +49,7 @@ func (h *ELOHandler) GetTeamFormationHandler(c echo.Context) error {
 	// チーム分け結果取得ロジックを呼び出す
 	result, err := h.eloUsecase.GetTeamFormation()
 	if err != nil {
+
 		return echo.NewHTTPError(http.StatusInternalServerError, "failed to get team formation")
 	}
 

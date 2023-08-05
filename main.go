@@ -27,11 +27,20 @@ func main() {
 	// PlayerRepositoryの作成
 	playerRepository := repository.NewPlayerRepository(db.GetDB())
 
+	// ELORepositoryの作成
+	eloRepository := repository.NewELORepository(db.GetDB())
+
 	// PlayerUsecaseの作成
 	playerUsecase := usecase.NewPlayerUsecase(playerRepository)
 
+	// ELOUsecaseの作成
+	eloUsecase := usecase.NewELOUsecase(*playerRepository, eloRepository)
+
 	// プレイヤーハンドラの作成
 	playerHandler := handlers.NewPlayerHandler(playerUsecase)
+
+	// ELOハンドラの作成
+	eloHandler := handlers.NewELOHandler(*eloUsecase)
 
 	// Echoインスタンスの作成
 	e := echo.New()
@@ -41,9 +50,9 @@ func main() {
 	e.Use(middleware.Recover())
 
 	// ルーティングの設定
-	routes.RegisterPlayerRoutes(e, *playerHandler)
+	routes.RegisterPlayerRoutes(e, playerHandler)
+	routes.RegisterELORoutes(e, eloHandler)
 
 	// サーバー起動
 	e.Logger.Fatal(e.Start(":8080"))
-
 }

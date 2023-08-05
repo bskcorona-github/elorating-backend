@@ -6,13 +6,13 @@ import (
 )
 
 // RegisterELORoutes はelo関連のルーティングを登録する関数です。
-func RegisterELORoutes(e *echo.Echo, eloHandler *handlers.ELOHandler) {
+func RegisterELORoutes(e *echo.Echo, h *handlers.ELOHandler) {
 	// プレイヤー選択API
-	e.POST("/selected_players", eloHandler.SelectPlayersHandler)
+	e.POST("/players/selected_players", h.SelectPlayersHandler)
 
 	// チーム分け結果取得API
-	e.GET("/teams", eloHandler.GetTeamFormationHandler)
+	e.GET("/teams", h.GetTeamFormationHandler)
 
 	// ゲーム結果反映API
-	e.POST("/game_result", eloHandler.ReflectGameResultHandler)
+	e.POST("/game_result", h.ReflectGameResultHandler)
 }

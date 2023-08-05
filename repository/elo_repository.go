@@ -8,10 +8,10 @@ import (
 )
 
 // EloRepository はELOに関するデータベース操作を抽象化するインターフェースです。
-type EloRepository interface {
+type ELORepository interface {
 	SaveTeamFormationResult(result *models.TeamFormationResult) error
-	UpdatePlayerRatings(players []*models.Player) error
 	GetTeamFormationResult() (*models.TeamFormationResult, error)
+	UpdatePlayerRatings(players []*models.Player) error
 }
 
 // eloRepository はEloRepositoryの実装を持つ構造体です。
@@ -20,7 +20,7 @@ type eloRepository struct {
 }
 
 // NewEloRepository はeloRepositoryのインスタンスを生成する関数です。
-func NewEloRepository(db *gorm.DB) EloRepository {
+func NewELORepository(db *gorm.DB) *eloRepository {
 	return &eloRepository{
 		db: db,
 	}

@@ -23,7 +23,7 @@ type ELOUsecase struct {
 }
 
 // NewELOUsecase はeloUsecaseのインスタンスを生成する関数です。
-func NewELOUsecase(playerRepository repository.PlayerRepository, eloRepository repository.EloRepository) *ELOUsecase {
+func NewELOUsecase(playerRepository repository.PlayerRepository, eloRepository repository.ELORepository) *ELOUsecase {
 	return &ELOUsecase{
 		playerRepository: playerRepository,
 		eloRepository:    eloRepository,
