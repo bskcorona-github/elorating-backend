@@ -12,8 +12,8 @@ type Player struct {
 // TeamFormationResult はチーム分け結果を表す構造体です。
 type TeamFormationResult struct {
 	ID    uint
-	TeamA []uint // プレイヤーのIDのスライス
-	TeamB []uint // プレイヤーのIDのスライス
+	TeamA []uint `json:"team_a" gorm:"-:all"` // プレイヤーのIDのスライス
+	TeamB []uint `json:"team_b" gorm:"-:all"` // プレイヤーのIDのスライス
 }
 
 // GameResult はゲーム結果を表す構造体です。
