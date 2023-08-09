@@ -1,11 +1,11 @@
 package usecase
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
 	"sort"
+	"strings"
 
 	"github.com/bskcorona-github/EloRatingSystem5vs5/elorating-backend/backend/models"
 	"github.com/bskcorona-github/EloRatingSystem5vs5/elorating-backend/backend/repository"
@@ -22,6 +22,14 @@ type ELORepository interface {
 type ELOUsecase struct {
 	playerRepository repository.PlayerRepository
 	eloRepository    ELORepository
+}
+
+func sliceToString(slice []uint) string {
+	strSlice := make([]string, len(slice))
+	for i, v := range slice {
+		strSlice[i] = fmt.Sprint(v)
+	}
+	return strings.Join(strSlice, ",")
 }
 
 // NewELOUsecase はeloUsecaseのインスタンスを生成する関数です。
@@ -56,13 +64,12 @@ func (u *ELOUsecase) TeamFormation(selectedPlayers []models.Player) (*models.Tea
 		}
 	}
 	// チームAとチームBのプレイヤーのIDを文字列としてJSON形式に変換
-	teamAIDsJSON, _ := json.Marshal(teamAIDs)
-	teamBIDsJSON, _ := json.Marshal(teamBIDs)
+	teamAString := sliceToString(teamAIDs)
+	teamBString := sliceToString(teamBIDs)
 
-	// TeamFormationResultを作成
 	result := &models.TeamFormationResult{
-		TeamA: string(teamAIDsJSON),
-		TeamB: string(teamBIDsJSON),
+		TeamA: teamAString,
+		TeamB: teamBString,
 	}
 	log.Println("mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm", result)
 

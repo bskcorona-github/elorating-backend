@@ -31,7 +31,10 @@ func NewELORepository(db *gorm.DB) *eloRepository {
 func (r *eloRepository) SaveTeamFormationResult(result *models.TeamFormationResult) (*models.TeamFormationResult, error) {
 	// チーム分け結果の保存ロジックを実装する
 	// ここで result の情報を TeamFormationResults テーブルに保存します
-	log.Println("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", result)
+	log.Println("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", result.TeamA)
+	log.Println("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", result.TeamB)
+	fmt.Printf("Value: %v, Type: %T\n", result.TeamA, result.TeamA)
+	fmt.Printf("Value: %v, Type: %T\n", result.TeamB, result.TeamB)
 
 	err := r.db.Create(result).Error
 	return result, err
