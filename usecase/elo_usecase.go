@@ -1,8 +1,10 @@
 package usecase
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"sort"
 
 	"github.com/bskcorona-github/EloRatingSystem5vs5/elorating-backend/backend/models"
@@ -11,7 +13,7 @@ import (
 
 // ELORepository はelo関連のデータベース操作を行うインターフェースです。
 type ELORepository interface {
-	SaveTeamFormationResult(result *models.TeamFormationResult) error
+	SaveTeamFormationResult(result *models.TeamFormationResult) (*models.TeamFormationResult, error)
 	GetTeamFormationResult() (*models.TeamFormationResult, error)
 	UpdatePlayerRatings(players []*models.Player) error
 }
@@ -53,16 +55,22 @@ func (u *ELOUsecase) TeamFormation(selectedPlayers []models.Player) (*models.Tea
 			teamBIDs = append(teamBIDs, player.ID)
 		}
 	}
+	// チームAとチームBのプレイヤーのIDを文字列としてJSON形式に変換
+	teamAIDsJSON, _ := json.Marshal(teamAIDs)
+	teamBIDsJSON, _ := json.Marshal(teamBIDs)
 
 	// TeamFormationResultを作成
 	result := &models.TeamFormationResult{
-		TeamA: teamAIDs,
-		TeamB: teamBIDs,
+		TeamA: string(teamAIDsJSON),
+		TeamB: string(teamBIDsJSON),
 	}
+	log.Println("mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm", result)
 
 	// チーム分け結果をDBに保存
-	err := u.eloRepository.SaveTeamFormationResult(result)
+	result, err := u.eloRepository.SaveTeamFormationResult(result)
 	if err != nil {
+		log.Println("2222222222222222222222222222222222222222222222", result)
+
 		return nil, fmt.Errorf("failed to save team formation result: %w", err)
 	}
 

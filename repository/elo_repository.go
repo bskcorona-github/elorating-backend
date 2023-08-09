@@ -10,7 +10,7 @@ import (
 
 // EloRepository はELOに関するデータベース操作を抽象化するインターフェースです。
 type ELORepository interface {
-	SaveTeamFormationResult(result *models.TeamFormationResult) error
+	SaveTeamFormationResult(result *models.TeamFormationResult) (*models.TeamFormationResult, error)
 	GetTeamFormationResult() (*models.TeamFormationResult, error)
 	UpdatePlayerRatings(players []*models.Player) error
 }
@@ -28,15 +28,13 @@ func NewELORepository(db *gorm.DB) *eloRepository {
 }
 
 // SaveTeamFormationResult はチーム分け結果をDBに保存するメソッドです。
-func (r *eloRepository) SaveTeamFormationResult(result *models.TeamFormationResult) error {
+func (r *eloRepository) SaveTeamFormationResult(result *models.TeamFormationResult) (*models.TeamFormationResult, error) {
 	// チーム分け結果の保存ロジックを実装する
 	// ここで result の情報を TeamFormationResults テーブルに保存します
-	if err := r.db.Create(result).Error; err != nil {
-		log.Println("fffffffffffffffffffffffffffffffffffffffffffff", result)
+	log.Println("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", result)
 
-		return fmt.Errorf("failed to save team formation result: %w", err)
-	}
-	return nil
+	err := r.db.Create(result).Error
+	return result, err
 }
 
 // UpdatePlayerRatings はプレイヤーのレーティングを更新するメソッドです。
@@ -57,16 +55,17 @@ func (r *eloRepository) GetTeamFormationResult() (*models.TeamFormationResult, e
 	result := &models.TeamFormationResult{}
 
 	// チームAのプレイヤーIDを取得
-	var teamAPlayerIDs []uint
+	var teamAPlayerIDs string
 	if err := r.db.Model(&models.TeamFormationResult{}).Pluck("team_a", &teamAPlayerIDs).Error; err != nil {
 		return nil, fmt.Errorf("failed to get team A player IDs: %w", err)
 	}
 
 	// チームBのプレイヤーIDを取得
-	var teamBPlayerIDs []uint
+	var teamBPlayerIDs string
 	if err := r.db.Model(&models.TeamFormationResult{}).Pluck("team_b", &teamBPlayerIDs).Error; err != nil {
 		return nil, fmt.Errorf("failed to get team B player IDs: %w", err)
 	}
+	log.Println("1111111111111111111111111111111111111111", result)
 
 	// チームAとチームBのプレイヤーIDをresultに設定
 	result.TeamA = teamAPlayerIDs
