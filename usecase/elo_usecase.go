@@ -3,7 +3,9 @@ package usecase
 import (
 	"errors"
 	"fmt"
+	"log"
 	"sort"
+	"strings"
 
 	"github.com/bskcorona-github/EloRatingSystem5vs5/elorating-backend/backend/models"
 	"github.com/bskcorona-github/EloRatingSystem5vs5/elorating-backend/backend/repository"
@@ -11,7 +13,7 @@ import (
 
 // ELORepository はelo関連のデータベース操作を行うインターフェースです。
 type ELORepository interface {
-	SaveTeamFormationResult(result *models.TeamFormationResult) error
+	SaveTeamFormationResult(result *models.TeamFormationResult) (*models.TeamFormationResult, error)
 	GetTeamFormationResult() (*models.TeamFormationResult, error)
 	UpdatePlayerRatings(players []*models.Player) error
 }
@@ -20,6 +22,14 @@ type ELORepository interface {
 type ELOUsecase struct {
 	playerRepository repository.PlayerRepository
 	eloRepository    ELORepository
+}
+
+func sliceToString(slice []uint) string {
+	strSlice := make([]string, len(slice))
+	for i, v := range slice {
+		strSlice[i] = fmt.Sprint(v)
+	}
+	return strings.Join(strSlice, ",")
 }
 
 // NewELOUsecase はeloUsecaseのインスタンスを生成する関数です。
@@ -36,40 +46,38 @@ func (u *ELOUsecase) TeamFormation(selectedPlayers []models.Player) (*models.Tea
 		return nil, errors.New("selectedPlayers must contain exactly 10 players")
 	}
 
-	// プレイヤーのレーティングを取得する
-	for i := 0; i < len(selectedPlayers); i++ {
-		player, err := u.playerRepository.GetPlayerByID(selectedPlayers[i].Name)
-		if err != nil {
-			return nil, fmt.Errorf("failed to get player with name %s: %w", selectedPlayers[i].Name, err)
-		}
-		selectedPlayers[i].EloRating = player.EloRating
-	}
-
-	// プレイヤーをレーティングでソートする（ELO Rating System用）
+	// プレイヤーをEloレーティングでソートする
 	sort.Slice(selectedPlayers, func(i, j int) bool {
 		return selectedPlayers[i].EloRating > selectedPlayers[j].EloRating
 	})
 
-	// チーム分けロジックを実装する
-	var teamA []*models.Player
-	var teamB []*models.Player
+	// チームAとチームBのプレイヤーのIDを格納するスライス
+	var teamAIDs []uint
+	var teamBIDs []uint
+
+	// プレイヤーを交互にチームAとチームBに追加していく
 	for i, player := range selectedPlayers {
-		if i < 5 {
-			teamA = append(teamA, &player)
+		if i%2 == 0 {
+			teamAIDs = append(teamAIDs, player.ID)
 		} else {
-			teamB = append(teamB, &player)
+			teamBIDs = append(teamBIDs, player.ID)
 		}
 	}
+	// チームAとチームBのプレイヤーのIDを文字列としてJSON形式に変換
+	teamAString := sliceToString(teamAIDs)
+	teamBString := sliceToString(teamBIDs)
 
-	// TeamFormationResultを作成
 	result := &models.TeamFormationResult{
-		TeamA: teamA,
-		TeamB: teamB,
+		TeamA: teamAString,
+		TeamB: teamBString,
 	}
+	log.Println("mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm", result)
 
 	// チーム分け結果をDBに保存
-	err := u.eloRepository.SaveTeamFormationResult(result)
+	result, err := u.eloRepository.SaveTeamFormationResult(result)
 	if err != nil {
+		log.Println("2222222222222222222222222222222222222222222222", result)
+
 		return nil, fmt.Errorf("failed to save team formation result: %w", err)
 	}
 

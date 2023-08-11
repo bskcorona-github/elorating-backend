@@ -2,6 +2,7 @@ package repository
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/bskcorona-github/EloRatingSystem5vs5/elorating-backend/backend/models"
 	"gorm.io/gorm"
@@ -9,7 +10,7 @@ import (
 
 // EloRepository はELOに関するデータベース操作を抽象化するインターフェースです。
 type ELORepository interface {
-	SaveTeamFormationResult(result *models.TeamFormationResult) error
+	SaveTeamFormationResult(result *models.TeamFormationResult) (*models.TeamFormationResult, error)
 	GetTeamFormationResult() (*models.TeamFormationResult, error)
 	UpdatePlayerRatings(players []*models.Player) error
 }
@@ -27,13 +28,16 @@ func NewELORepository(db *gorm.DB) *eloRepository {
 }
 
 // SaveTeamFormationResult はチーム分け結果をDBに保存するメソッドです。
-func (r *eloRepository) SaveTeamFormationResult(result *models.TeamFormationResult) error {
+func (r *eloRepository) SaveTeamFormationResult(result *models.TeamFormationResult) (*models.TeamFormationResult, error) {
 	// チーム分け結果の保存ロジックを実装する
 	// ここで result の情報を TeamFormationResults テーブルに保存します
-	if err := r.db.Create(result).Error; err != nil {
-		return fmt.Errorf("failed to save team formation result: %w", err)
-	}
-	return nil
+	log.Println("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", result.TeamA)
+	log.Println("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", result.TeamB)
+	fmt.Printf("Value: %v, Type: %T\n", result.TeamA, result.TeamA)
+	fmt.Printf("Value: %v, Type: %T\n", result.TeamB, result.TeamB)
+
+	err := r.db.Create(result).Error
+	return result, err
 }
 
 // UpdatePlayerRatings はプレイヤーのレーティングを更新するメソッドです。
@@ -50,25 +54,25 @@ func (r *eloRepository) UpdatePlayerRatings(players []*models.Player) error {
 
 // GetTeamFormationResult はチーム分け結果をDBから取得するメソッドです。
 func (r *eloRepository) GetTeamFormationResult() (*models.TeamFormationResult, error) {
-	// チーム分け結果取得ロジックを実装する
-	// ここで TeamFormationResults テーブルからチーム分け結果を取得します
-	// 必要に応じてデータベースのクエリを実行して、チーム分け結果を取得してください
-	// 仮に以下のような変数 result に取得したチーム分け結果を格納するものとします
-	result := &models.TeamFormationResult{
-		TeamA: []*models.Player{
-			{Name: "player1", EloRating: 1500},
-			{Name: "player2", EloRating: 1550},
-			{Name: "player3", EloRating: 1450},
-			{Name: "player4", EloRating: 1520},
-			{Name: "player5", EloRating: 1480},
-		},
-		TeamB: []*models.Player{
-			{Name: "player6", EloRating: 1530},
-			{Name: "player7", EloRating: 1470},
-			{Name: "player8", EloRating: 1510},
-			{Name: "player9", EloRating: 1540},
-			{Name: "player10", EloRating: 1460},
-		},
+	// チーム分け結果を格納する変数
+	result := &models.TeamFormationResult{}
+
+	// チームAのプレイヤーIDを取得
+	var teamAPlayerIDs string
+	if err := r.db.Model(&models.TeamFormationResult{}).Pluck("team_a", &teamAPlayerIDs).Error; err != nil {
+		return nil, fmt.Errorf("failed to get team A player IDs: %w", err)
 	}
+
+	// チームBのプレイヤーIDを取得
+	var teamBPlayerIDs string
+	if err := r.db.Model(&models.TeamFormationResult{}).Pluck("team_b", &teamBPlayerIDs).Error; err != nil {
+		return nil, fmt.Errorf("failed to get team B player IDs: %w", err)
+	}
+	log.Println("1111111111111111111111111111111111111111", result)
+
+	// チームAとチームBのプレイヤーIDをresultに設定
+	result.TeamA = teamAPlayerIDs
+	result.TeamB = teamBPlayerIDs
+
 	return result, nil
 }
